@@ -32,6 +32,8 @@ io.on("connection", (socket) => {
 
   socket.on("register", (name: string) => {
     connectedUsers[socket.id] = name;
+    console.log("user registered", name);
+    socket.broadcast.emit("userConnected");
   });
 
   socket.on("join", (room: string) => {
@@ -73,19 +75,20 @@ io.on("connection", (socket) => {
     socket.to(data.room).emit("candidate", { candidate: data.candidate });
   });
 
-  socket.on("available-rooms", () => {
-    socket.emit("available-rooms", rooms);
+  socket.on("availableRooms", () => {
+    socket.emit("availableRooms", rooms);
   });
 
-  socket.on("online-users", () => {
-    const users = Object.keys(connectedUsers).filter(
-      (key) => connectedUsers[key] !== undefined
-    );
-    socket.emit("online-users", users);
+  socket.on("getOnlineUsers", () => {
+    socket.emit("onlineUsers", connectedUsers);
   });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
+    if (connectedUsers[socket.id]) {
+      socket.broadcast.emit("userDisconnected", socket.id);
+      delete connectedUsers[socket.id];
+    }
   });
 });
 
@@ -93,6 +96,6 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Express + TypeScript Server");
 });
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 });
