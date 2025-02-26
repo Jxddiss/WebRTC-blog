@@ -1,6 +1,12 @@
 import { io } from "socket.io-client";
 import userSVG from "./user.svg?raw";
 
+declare global {
+  interface Window {
+    appeller: (id: string) => void;
+  }
+}
+
 const socket = io("http://localhost:3000", {});
 
 function register(name: string) {
@@ -13,9 +19,8 @@ function prepareSocket() {
     console.log("connected");
   });
 
-  socket.on("userConnected", (data) => {
+  socket.on("userConnected", () => {
     socket.emit("getOnlineUsers");
-    console.log("Whatt?", data);
   });
 
   socket.on("onlineUsers", (data) => {
@@ -25,6 +30,18 @@ function prepareSocket() {
   socket.on("userDisconnected", (data) => {
     console.log("user disconnected", data);
     socket.emit("getOnlineUsers");
+  });
+
+  socket.on("call", (data) => {
+    showCallDialog(
+      data.name,
+      () => {
+        console.log("accept call");
+      },
+      () => {
+        console.log("reject call");
+      }
+    );
   });
 }
 
@@ -41,7 +58,7 @@ function renderOnlineUsers(users: Record<string, string>) {
         <li class="user">
             ${userSVG}
             <div class="name">${nom}</div>
-            <button class="call">Appeler</button>
+            <button class="call" onclick="appeller('${id}')">Appeler</button>
         </li>
         `;
     }
@@ -63,3 +80,32 @@ registerForm?.addEventListener("submit", (e) => {
 });
 
 registerDialog.showModal();
+
+const callDialog = document.getElementById("call-dialog") as HTMLDialogElement;
+const callDialogName = document.getElementById("caller-name");
+const callDialogAccept = document.getElementById("accept-call");
+const callDialogReject = document.getElementById("reject-call");
+
+function showCallDialog(
+  callerName: string,
+  acceptCall: () => void,
+  rejectCall: () => void
+) {
+  if (!callDialogName || !callDialogAccept || !callDialogReject) return;
+  callDialogAccept.onclick = () => {
+    acceptCall();
+    callDialog.close();
+  };
+  callDialogReject.onclick = () => {
+    rejectCall();
+    callDialog.close();
+  };
+  callDialogName.textContent = callerName;
+  callDialog.showModal();
+}
+
+window.appeller = appeller;
+
+function appeller(id: string) {
+  socket.emit("call", { to: id });
+}

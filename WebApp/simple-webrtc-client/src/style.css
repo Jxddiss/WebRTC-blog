@@ -102,18 +102,12 @@ hr {
     0 4px 6px -4px rgba(0, 0, 0, 0.05);
 }
 
-#register-dialog {
+dialog {
   transform: translate(-50%, -50%);
   position: fixed;
   top: 50%;
   left: 50%;
   box-sizing: content-box;
-}
-
-#register-dialog[open] {
-  height: auto;
-  height: 120px;
-  width: 450px;
   border: none;
   border-radius: 20px;
   font-size: 1.5rem;
@@ -122,6 +116,92 @@ hr {
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
     0 10px 10px -5px rgba(0, 0, 0, 0.04);
   animation: slideDown 0.4s ease-out;
+}
+
+#call-dialog[open] {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  height: 320px;
+  padding: 1.5em;
+  width: 300px;
+}
+
+#call-dialog[open] svg {
+  height: 70px;
+  width: 70px;
+}
+
+#call-dialog[open] button:not(#close-call-dialog) {
+  padding: 0.75em 1.5em;
+  height: 48px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+#call-dialog[open] button:not(#close-call-dialog):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+}
+
+#call-dialog[open] button:active {
+  transform: translateY(0);
+}
+
+#call-dialog[open] #close-call-dialog {
+  position: absolute;
+  top: 0.5em;
+  right: 0.5em;
+  background: none;
+  color: #1e293b;
+  font-size: 1.5rem;
+  cursor: pointer;
+  outline: none;
+  border: none;
+}
+
+#call-dialog[open] #close-call-dialog:hover {
+  color: #ce2828;
+}
+
+#call-dialog[open] #accept-call {
+  background-color: #2563eb;
+}
+
+#call-dialog[open] #accept-call:hover {
+  background-color: #1d4ed8;
+}
+
+#call-dialog[open] #reject-call {
+  background-color: #f87171;
+}
+
+#call-dialog[open] #reject-call:hover {
+  background-color: #ef4444;
+}
+
+#call-dialog[open] #call-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+#call-dialog[open] #call-action {
+  display: flex;
+  gap: 2rem;
+}
+
+#register-dialog[open] {
+  height: 120px;
+  width: 450px;
 }
 
 @keyframes slideDown {
