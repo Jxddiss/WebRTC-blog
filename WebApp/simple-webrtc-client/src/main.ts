@@ -10,7 +10,6 @@ function register(name: string) {
 function prepareSocket() {
   socket.on("connect", () => {
     console.log("connected");
-    register("client" + Math.floor(Math.random() * 1000));
   });
 
   socket.on("userConnected", (data) => {
@@ -46,3 +45,19 @@ function renderOnlineUsers(users: Record<string, string>) {
     }
   }
 }
+
+const registerDialog = document.getElementById(
+  "register-dialog"
+) as HTMLDialogElement;
+const registerForm = document.getElementById("register-form");
+const registerInput = document.getElementById("username") as HTMLInputElement;
+
+registerForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  if (registerInput.value) {
+    register(registerInput.value);
+    registerDialog.close();
+  }
+});
+
+registerDialog.showModal();
