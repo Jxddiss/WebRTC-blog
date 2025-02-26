@@ -1,4 +1,5 @@
 import { io } from "socket.io-client";
+import userSVG from "./user.svg?raw";
 
 const socket = io("http://localhost:3000", {});
 
@@ -37,10 +38,11 @@ function renderOnlineUsers(users: Record<string, string>) {
   for (const [id, nom] of Object.entries(users)) {
     if (id !== socket.id) {
       onlineUsers.innerHTML += `
-        <div class="user">
+        <li class="user">
+            ${userSVG}
             <div class="name">${nom}</div>
-            <button class="call">Call</button>
-        </div>
+            <button class="call">Appeler</button>
+        </li>
         `;
     }
   }

@@ -4,6 +4,12 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <link rel="stylesheet" href="/src/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:ital,wght@0,200..800;1,200..800&display=swap"
+    rel="stylesheet">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Demo simple WebRTC - Veille Technologique</title>
 </head>
@@ -11,19 +17,35 @@
 <body>
   <main>
     <div class="container">
-      <div class="conatiner-online-users">
-        <h2>Online Users</h2>
-        <ul class="online-users"></ul>
+      <div class="container-content">
+        <h2>Utilisateurs en ligne</h2>
+        <hr />
+        <ul class="online-users">
+          <!-- <li class="user">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-user">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <div class="name">${nom}</div>
+            <button class="call">Appeler</button>
+          </li> -->
+        </ul>
       </div>
-      <div class="container-rooms">
+      <div class="container-content">
+        <h2>Salon de discusions</h2>
+        <hr />
       </div>
     </div>
   </main>
   <dialog id="register-dialog">
     <form id="register-form">
-      <label for="username">Username</label>
-      <input type="text" id="username" name="username" required />
-      <button type="submit">Register</button>
+      <label for="username">Nom d'utilisateur</label>
+      <div>
+        <input type="text" id="username" name="username" required />
+        <button type="submit">Register</button>
+      </div>
     </form>
   </dialog>
   <script type="module" src="/src/main.js"></script>
