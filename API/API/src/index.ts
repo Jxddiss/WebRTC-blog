@@ -20,26 +20,32 @@ const io = new Server(server, {
 const port = process.env.PORT || 3000;
 
 const rooms: Record<string, number> = {};
+const connectedUsers: Record<string, string | undefined> = {};
 
 io.on("connection", (socket) => {
   console.log("a user connected", socket.id);
+  connectedUsers[socket.id] = undefined;
 
   socket.on("message", (msg: string) => {
     socket.broadcast.emit("message", msg);
   });
 
+  socket.on("register", (name: string) => {
+    connectedUsers[socket.id] = name;
+  });
+
   socket.on("join", (room: string) => {
-    socket.join(room);
     if (!rooms[room]) {
       rooms[room] = 1;
       setTimeout(() => {
         if (rooms[room] === 0) {
           delete rooms[room];
         }
-      });
+      }, 3000);
     } else {
       rooms[room] = rooms[room]++;
     }
+    socket.join(room);
   });
 
   socket.on("leave", (room: string) => {
@@ -63,6 +69,13 @@ io.on("connection", (socket) => {
 
   socket.on("available-rooms", () => {
     socket.emit("available-rooms", rooms);
+  });
+
+  socket.on("online-users", () => {
+    const users = Object.keys(connectedUsers).filter(
+      (key) => connectedUsers[key] !== undefined
+    );
+    socket.emit("online-users", users);
   });
 
   socket.on("disconnect", () => {
