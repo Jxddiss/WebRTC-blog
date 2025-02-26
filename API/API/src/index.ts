@@ -55,6 +55,12 @@ io.on("connection", (socket) => {
     }
   });
 
+  socket.on("call", (data) => {
+    socket
+      .to(data.to)
+      .emit("call", { from: socket.id, name: connectedUsers[socket.id] });
+  });
+
   socket.on("offer", (data) => {
     socket.to(data.room).emit("offer", { sdp: data.sdp, socketId: socket.id });
   });
