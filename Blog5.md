@@ -2,47 +2,47 @@ Après le dernier blog, nous avons eu l'occasion de voir comment créer un serve
 
 ## Contexte
 
-Pour les besoin de ce blog nous développerons un client en WebRTC qui nous permettra de faire des appels un-à-un.
+Pour les besoins de ce blog, nous développerons un client WebRTC qui nous permettra de faire des appels un-à-un.
 
-Elle nous permettra d'indiquer notre nom lorsqu'on arrive sur la page pour ensuite voir la liste de tous les utilisateurs connectés.
+Il nous permettra d’indiquer notre nom à notre arrivée sur la page, puis de voir la liste de tous les utilisateurs connectés.
 
-Chacun de ceux-ci pourra être appellé. Lorsqu'un appel est reçus, un dialog nous permettra de l'accepter ou de le refuser. S'il est accepté, alors les vidéos des deux utilisateurs sont affichées.
+Chacun d’eux pourra être appelé. Lorsqu'un appel est reçu, une boîte de dialogue nous permettra de l'accepter ou de le refuser. S'il est accepté, les vidéos des deux utilisateurs seront affichées.
 
-Tout comme pour le côté serveur, j'ai fait le choix d'utiliser TypeScript pour que l'on comprenne mieux avec les types. Par contre, j'ai aussi fait le choix de ne pas utiliser de « framework » comme React ou Angular pour ne nommer qu'eux. La raison est simple, mon blog est beaucoup plus axé sur WebRTC et comment le mettre en place, et je penses qu'utilisé l'une de ces technologie rajouterrait une couche de compléxité non-nécessaire pour le sujet du blog. Malgré tout, vous en apprendrez plus sur l'intégration de WebRTC, et celle-ci devrait sensiblement la même chose dans d'autre « framework ».
+Tout comme pour le côté serveur, j’ai choisi d’utiliser TypeScript afin de mieux comprendre grâce aux types. Cependant, j’ai également décidé de ne pas utiliser de « framework » comme React ou Angular, pour ne citer qu’eux. La raison est simple : mon blog est avant tout axé sur WebRTC et son intégration. Utiliser l’une de ces technologies ajouterait une couche de complexité non nécessaire pour le sujet abordé. Malgré tout, vous en apprendrez davantage sur l’intégration de WebRTC, et celle-ci devrait être sensiblement la même dans d'autres « frameworks ».
 
 ## Configuration initiale
 
-Commençons par ce auxquel vous avez accès. dans [le dépôt du projet sur github](https://github.com/Jxddiss/WebRTC-blog), vous retrouverez dans la branche `client` le canevas sur lequel nous allons travailler dans le blog d'aujourd'hui. Celui-ci contient les styles de base de la page, le fichier HTML, le script JavaScript incomplêt ainsi que le projet avec le serveur de signal.
+Commençons par ce à quoi vous avez accès. Dans [le dépôt du projet sur GitHub](https://github.com/Jxddiss/WebRTC-blog), vous retrouverez, dans la branche `client`, le canevas sur lequel nous allons travailler dans le blog d'aujourd'hui. Celui-ci contient les styles de base de la page, le fichier HTML, le script JavaScript incomplet ainsi que le projet avec le serveur de signal.
 
-Même s'il est vrai que ce que nous verrons pourrait être utilisé avec n'importe quel projet client, je sentait que pour que nous restions concentré sur WebRTC, certaines choses comme le css n'aurait pas à être dans cet article. D'où pourquoi je vous ai préparé un projet incomplêt.
+Même s'il est vrai que ce que nous verrons pourrait être utilisé avec n'importe quel projet client, je sentais que, pour que nous restions concentrés sur WebRTC, certaines choses comme le CSS n'avaient pas à être détaillées dans cet article. C'est pourquoi je vous ai préparé un projet incomplet.
 
-Vous pouvez le cloner dans votre espace et aller sur la branche avec les commandes suivantes :
+Vous pouvez le cloner dans votre espace et accéder à la branche avec les commandes suivantes :
 
 ```
 git clone https://github.com/Jxddiss/WebRTC-blog.git
 git switch client
 ```
 
-Maintenant que nous avons les prérequis, nous pouvons installer les dépendances dont nous avons besoins.
+Maintenant que nous avons les prérequis, nous pouvons installer les dépendances dont nous avons besoin.
 
-La première est `socket.io-client` c'est ce qui nous permet de communiquer avec le serveur websocket qui utilise Socket.io¹
+La première est `socket.io-client`, qui nous permet de communiquer avec le serveur WebSocket utilisant Socket.io.¹
 
 ```
 cd WebApp/simple-webrtc-client
 npm i socket.io-client
 ```
 
-Ensuite, nous devons installer la librairie `webrtc-adapter` celle-ci permet d'améliorer la compatibilité entre les différents navigateurs¹
+Ensuite, nous devons installer la librairie `webrtc-adapter`. Celle-ci permet d'améliorer la compatibilité entre les différents navigateurs.¹
 
 ```
 npm i webrtc-adapter
 ```
 
-Maintenant, passons au code, nous travaillerons dans le fichier `main.ts`.
+Maintenant, passons au code. Nous travaillerons dans le fichier `main.ts`.
 
 ## Types
 
-Commençons par définir une interface pour window, il s'agit de quelque chose qui va nous permettre d'ajouter La fonction call, qui sera définie plus tard, à l'objet window. Ceci est nécesaire puisque nous utilisons TypeScript.
+Commençons par définir une interface pour `window`. Il s'agit de quelque chose qui va nous permettre d'ajouter la fonction `call`, qui sera définie plus tard, à l'objet `window`. Ceci est nécessaire puisque nous utilisons TypeScript.
 
 ```
 declare global {
@@ -54,7 +54,7 @@ declare global {
 
 ## Éléments du DOM
 
-Maintenant, allons chercher les élément du DOM qui nous serons utiles.
+Maintenant, allons chercher les éléments du DOM qui nous seront utiles.
 
 ```
 const localVideo = document.getElementById("local-video") as HTMLVideoElement;
@@ -76,25 +76,25 @@ const callDialogAccept = document.getElementById("accept-call");
 const callDialogReject = document.getElementById("reject-call");
 ```
 
-Laissez moi vous expliquer a quoi chacun de ces éléments correspond
+Laissez-moi vous expliquer à quoi correspond chacun de ces éléments :
 
 - `localVideo` : L'élément qui contiendra la vidéo de l'utilisateur local
 - `remoteVideo` : L'élément qui contiendra la vidéo de l'autre pair
 - `callBox` : Le conteneur contenant les deux vidéos
-- `listeUtilisateursContainer` : Le conteneur contenant l'élément avec la liste d'utilisateur connecté
-- `endCallButton` : Le bouton pour arreter un appel
-- `listeUtilisateurs` : L'élément avec la liste d'utilisateur connecté
-- `registerDialog` : Le dialog pour l'inscription
+- `listeUtilisateursContainer` : Le conteneur contenant l'élément avec la liste des utilisateurs connectés
+- `endCallButton` : Le bouton pour arrêter un appel
+- `listeUtilisateurs` : L'élément avec la liste des utilisateurs connectés
+- `registerDialog` : Le dialogue pour l'inscription
 - `registerForm` : Le formulaire d'inscription
 - `registerInput` : Le champ avec le nom
-- `callDialog` : Le dialog affiché lorsqu'un appel est reçu
-- `callDialogName` : le nom de l'utilisateur qui appel
-- `callDialogAccept` : Le boutton pour accepter un appel
-- `callDialogReject` : Le boutton pour rejeter un appel
+- `callDialog` : Le dialogue affiché lorsqu'un appel est reçu
+- `callDialogName` : Le nom de l'utilisateur qui appelle
+- `callDialogAccept` : Le bouton pour accepter un appel
+- `callDialogReject` : Le bouton pour rejeter un appel
 
 ## États
 
-Pour implémenter la logique, nous aurons besoins de plusieurs états.
+Pour implémenter la logique, nous aurons besoin de plusieurs états.
 
 ```
 let peerConnection = new RTCPeerConnection();
@@ -103,17 +103,17 @@ let localStream: MediaStream | null = null;
 const socket = io("http://localhost:3000");
 ```
 
-Ici, `peerConnection` est l'objet qui référence la connexion WebRTC. On utilise let puisqu'il sera changé entre chaque appel.
+Ici, `peerConnection` est l'objet qui référence la connexion WebRTC. On utilise `let` puisqu'il sera changé entre chaque appel.
 
-Ensuite, `currentCallId` nous permet de garder en mémoire l'id de connexion de celui avec qui nous somme en appel, Grace à celui-ci, nous pourrons directement lui envoyer des informations.
+Ensuite, `currentCallId` nous permet de garder en mémoire l'ID de connexion de celui avec qui nous sommes en appel. Grâce à celui-ci, nous pourrons directement lui envoyer des informations.
 
-`localStream` représente le flux vidéo vennant de la caméra de l'utilisateur.
+`localStream` représente le flux vidéo venant de la caméra de l'utilisateur.
 
 Finalement, `socket` est l'objet représentant la connexion au serveur de signal.
 
 ## Fonctions WebRTC
 
-Cette prochaine section portera son attention sur les fonctions utilitaires liées à WebRTC dont nous aurons besoins.
+Cette prochaine section portera son attention sur les fonctions utilitaires liées à WebRTC dont nous aurons besoin.
 
 La première est celle qui nous permet de créer et d'envoyer une offre SDP à l'autre utilisateur.
 
@@ -125,7 +125,7 @@ async function createOffer(socketId: string) {
 }
 ```
 
-Dans le cas où une offre est reçus, il faut renvoyé un réponse SDP, c'est donc la qu'entre en jeux `handleOffer`
+Dans le cas où une offre est reçue, il faut renvoyer une réponse SDP. C'est donc là qu'entre en jeu `handleOffer`.
 
 ```
 async function handleOffer(sdp: RTCSessionDescription, socketId: string) {
@@ -136,9 +136,9 @@ async function handleOffer(sdp: RTCSessionDescription, socketId: string) {
 }
 ```
 
-**Comme mentionnée dans un blog précédant, un échange SDP (offre ou réponse) est une déscription de la connextion WebRTC³**
+**Comme mentionné dans un blog précédent, un échange SDP (offre ou réponse) est une description de la connexion WebRTC³**
 
-La fonction suivante nous permet de gérer le flux vidéo de l'utilisateur local, lorsqu'il est reçus, l'état avec le flux vidéo est mis à jour, la liste des utilisateurs connectés est caché, le conteneur avec les éléments vidéo est montré, le flux est mis en source dans l'élément contenant la vidéo locale puis toutes les pistes( audio et video ) sont ajouté à la connexion WebRTC avec l'état peerConnection.
+La fonction suivante nous permet de gérer le flux vidéo de l'utilisateur local. Lorsqu'il est reçu, l'état avec le flux vidéo est mis à jour, la liste des utilisateurs connectés est cachée, le conteneur avec les éléments vidéo est montré, le flux est mis en source dans l'élément contenant la vidéo locale, puis toutes les pistes (audio et vidéo) sont ajoutées à la connexion WebRTC avec l'état `peerConnection`.
 
 ```
 function handleStream(stream: MediaStream) {
@@ -150,7 +150,7 @@ function handleStream(stream: MediaStream) {
 }
 ```
 
-Finalement, `resetStates` retire le conteneur de vidéo, réaffiche les utilisateurs connectés, arrête les pistes et rénitialise tous les états.
+Finalement, `resetStates` retire le conteneur de vidéo, réaffiche les utilisateurs connectés, arrête les pistes et réinitialise tous les états.
 
 ```
 function resetData() {
@@ -165,11 +165,11 @@ function resetData() {
 }
 ```
 
-## Évènement WebRTC
+## Évènements WebRTC
 
-Pour faire fonctionner la connection WebRTC nous devons définir ce qu'il se passe lors de certains évènements. Ceux qui vont nous intéresser aujourd'hui sont `onicecandidate` et `ontrack`. Parcontre, il en existe d'autre.
+Pour faire fonctionner la connexion WebRTC, nous devons définir ce qu'il se passe lors de certains événements. Ceux qui vont nous intéresser aujourd'hui sont `onicecandidate` et `ontrack`. Par contre, il en existe d'autres.
 
-Puisque `peerConnection` est rénitialisé après chaque appel, nous devons placé la définition des comportements dans la fonction `setupPeerConnectionListeners`
+Puisque `peerConnection` est réinitialisé après chaque appel, nous devons placer la définition des comportements dans la fonction `setupPeerConnectionListeners`.
 
 ```
 function setupPeerConnectionListeners() {
@@ -177,7 +177,7 @@ function setupPeerConnectionListeners() {
 }
 ```
 
-`onicecandidate` est lancé lorsqu'un « ICE candidates »⁴ est détecté. Ce que nous voulons faire, c'est les envoyés à l'autre pair.
+`onicecandidate` est lancé lorsqu'un « ICE candidate »⁴ est détecté. Ce que nous voulons faire, c'est les envoyer à l'autre pair.
 
 ```
 function setupPeerConnectionListeners() {
@@ -189,7 +189,7 @@ function setupPeerConnectionListeners() {
 }
 ```
 
-`ontrack` lui est lancé quand un flux de média est ajouté à la connexion par l'autre pair. Nous voulons le prendre et l'ajouter dans l'élément correspondant à la vidéo de l'autre utilisateur.
+`ontrack` lui est lancé lorsqu'un flux de média est ajouté à la connexion par l'autre pair. Nous voulons le prendre et l'ajouter dans l'élément correspondant à la vidéo de l'autre utilisateur.
 
 ```
 function setupPeerConnectionListeners() {
@@ -203,15 +203,15 @@ function setupPeerConnectionListeners() {
 
 ## Configuration Socket
 
-Nous savons comment gérer la connexion WebRTC, mais maintenant la question c'est de savoir comment gérer la connexion au serveur de signal?
+Nous savons comment gérer la connexion WebRTC, mais maintenant la question c'est de savoir comment gérer la connexion au serveur de signal ?
 
-Avec la librairie `socket.io-client`, les évènements sont géré un peu de la même manière que du côté serveur, donc ce que nous ferons sera similaire au précédant blog.
+Avec la librairie `socket.io-client`, les événements sont gérés un peu de la même manière que du côté serveur, donc ce que nous ferons sera similaire au précédent blog.
 
-Pour définir ce qui sera fait lors d'un évènement, on utilise la méthode `on` de l'objet `socket` donc cela donne `socket.on("<nom_event>", fonction à faire)`
+Pour définir ce qui sera fait lors d'un événement, on utilise la méthode `on` de l'objet `socket`, donc cela donne `socket.on("<nom_event>", fonction à faire)`.
 
-La configuration de tous les évènements pour cette application sera fait à l'intérieur d'une fonction `setupSocketListeners`
+La configuration de tous les événements pour cette application sera faite à l'intérieur d'une fonction `setupSocketListeners`.
 
-Commençons par ce qui sera fait lors de la connexion initial
+Commençons par ce qui sera fait lors de la connexion initiale.
 
 ```
 function setupSocketListeners() {
@@ -219,7 +219,7 @@ function setupSocketListeners() {
 }
 ```
 
-Ensuite, nous avons l'évènement `userConnected` lancé après que l'utilisateur c'est inscrit en envoyant son nom au serveur
+Ensuite, nous avons l'événement `userConnected`, lancé après que l'utilisateur s'est inscrit en envoyant son nom au serveur.
 
 ```
 function setupSocketListeners() {
@@ -230,9 +230,9 @@ function setupSocketListeners() {
 }
 ```
 
-`socket.emit` permet d'appeller un évènement sur le serveur, dans ce cas ci, `getOnlineUsers`. Le serveur répondra en appelant un autre du côté client.
+`socket.emit` permet d'appeler un événement sur le serveur, dans ce cas-ci, `getOnlineUsers`. Le serveur répondra en appelant un autre événement du côté client.
 
-Cet autre est `onlineUsers`, on voit dans la fonction à côté un paramêtre, il s'agit de ce qui est retourné par le serveur. Dans ce cas ci, un dictionnaire avec le id de connexion ainsi que le nom des utilisateurs connecté.
+Cet autre est `onlineUsers`. On voit dans la fonction à côté un paramètre, il s'agit de ce qui est retourné par le serveur. Dans ce cas-ci, un dictionnaire avec l'ID de connexion ainsi que le nom des utilisateurs connectés.
 
 ```
 function setupSocketListeners() {
@@ -243,9 +243,9 @@ function setupSocketListeners() {
 }
 ```
 
-`renderOnlineUsers` est une fonctions lié à l'interface qui sera expliqué plus tard.
+`renderOnlineUsers` est une fonction liée à l'interface qui sera expliquée plus tard.
 
-`userDisconnected` est lancé à la déconnexion d'un utilisateur, ici on relance `getOnlineUsers` sur le serveur.
+`userDisconnected` est lancé à la déconnexion d'un utilisateur. Ici, on relance `getOnlineUsers` sur le serveur.
 
 ```
 function setupSocketListeners() {
@@ -256,7 +256,7 @@ function setupSocketListeners() {
 }
 ```
 
-`call` est ce qui est lancé lorsqu'un appel est reçus. Il appel une méthode d'interface qui prends en paramêtre ce qui doit être fait si l'appel est accepté ou refusé.
+`call` est ce qui est lancé lorsqu'un appel est reçu. Il appelle une méthode d'interface qui prend en paramètre ce qui doit être fait si l'appel est accepté ou refusé.
 
 ```
 function setupSocketListeners() {
@@ -271,7 +271,7 @@ function setupSocketListeners() {
 }
 ```
 
-`endCall` c'est lorsque l'autre utilisateur met fin à l'appel, les états sont rénitialisés
+`endCall` c'est lorsque l'autre utilisateur met fin à l'appel. Les états sont réinitialisés.
 
 ```
 function setupSocketListeners() {
@@ -280,7 +280,7 @@ function setupSocketListeners() {
 }
 ```
 
-Finalement, nous avons les évènements liés à WebRTC directement, `offer` lorsqu'une offre SDP est reçus, `answer` lors de la récéption d'une réponse SDP et `candidate` pour gérer les candidats reçus
+Finalement, nous avons les événements liés à WebRTC directement : `offer` lorsqu'une offre SDP est reçue, `answer` lors de la réception d'une réponse SDP, et `candidate` pour gérer les candidats reçus.
 
 ```
 function setupSocketListeners() {
@@ -301,9 +301,9 @@ function setupSocketListeners() {
 
 ## Logique des appels
 
-C'est ici que nous allons définir les fonctions associé à la logique des appel.
+C'est ici que nous allons définir les fonctions associées à la logique des appels.
 
-La première est lié au ce que nous avons ajouter plutôt à window. En effet, c'est ici que nous définirons `window.call`, qui est appellé lorsqu'on veut appeller un autre utilisateur.
+La première est liée à ce que nous avons ajouté plus tôt à `window`. En effet, c'est ici que nous définirons `window.call`, qui est appelé lorsqu'on veut appeler un autre utilisateur.
 
 ```
 window.call = async (id: string) => {
@@ -321,9 +321,9 @@ window.call = async (id: string) => {
 };
 ```
 
-`await navigator.mediaDevices.getUserMedia` nous permet d'aller chercher les flux de média à partir de la webcam de l'utilisateur, c'est ce qui retourne l'objet stream passé à `handleStream`, qui deviendra l'état `localStream`
+`await navigator.mediaDevices.getUserMedia` nous permet d'aller chercher les flux de média à partir de la webcam de l'utilisateur. C'est ce qui retourne l'objet `stream` passé à `handleStream`, qui deviendra l'état `localStream`.
 
-Ensuite, nous avons `answerCall` qui à une logique légèrement différente puisqu'il s'agit de ce qui est fait lorsqu'un appel est accepté
+Ensuite, nous avons `answerCall` qui a une logique légèrement différente puisqu'il s'agit de ce qui est fait lorsqu'un appel est accepté.
 
 ```
 async function answerCall(socketId: string) {
@@ -341,7 +341,7 @@ async function answerCall(socketId: string) {
 }
 ```
 
-Puis finalement, nous avons `hangUp` pour terminer l'appel et le communiquer à l'autre utilisateur
+Puis finalement, nous avons `hangUp` pour terminer l'appel et le communiquer à l'autre utilisateur.
 
 ```
 function hangUp() {
@@ -350,11 +350,11 @@ function hangUp() {
 }
 ```
 
-## Interface utilisateurs
+## Interface utilisateur
 
-C'est maintenant ici que les fonctions liés à l'interface utilisateurs seront définies
+C'est maintenant ici que les fonctions liées à l'interface utilisateur seront définies.
 
-La première est ce qui permet d'afficher la liste des utilisateurs connecté reçus du serveur.
+La première est ce qui permet d'afficher la liste des utilisateurs connectés reçus du serveur.
 
 ```
 function renderOnlineUsers(users: Record<string, string>) {
@@ -375,9 +375,9 @@ function renderOnlineUsers(users: Record<string, string>) {
 }
 ```
 
-La façon dont les utilisateurs sont rendus est la raison pourquoi la fonction `call` fait partie de window. En effet, je passe directement le onclick aux bouton avec le id de l'utilisateur.
+La façon dont les utilisateurs sont rendus est la raison pour laquelle la fonction `call` fait partie de `window`. En effet, je passe directement le `onclick` aux boutons avec l'ID de l'utilisateur.
 
-Ensuite, nous avons la fonction `showCallDialog` qui sera appeler lorsqu'un appel est reçu. Elle reçois en paramètre le nom de l'appellant ainsi que les fonctions à lancé si l'appel est accepté ou refuser.
+Ensuite, nous avons la fonction `showCallDialog` qui sera appelée lorsqu'un appel est reçu. Elle reçoit en paramètre le nom de l'appelant ainsi que les fonctions à lancer si l'appel est accepté ou refusé.
 
 ```
 function showCallDialog(
@@ -400,16 +400,16 @@ function showCallDialog(
 }
 ```
 
-## Évènements interface utilisateur
+## Événements interface utilisateur
 
-En plus des fonctions liés à l'interface, nous avons des écouteurs à définir
-le premier est pour permettre au bouton `endCallButton` de mettre fin à l'appel
+En plus des fonctions liées à l'interface, nous avons des écouteurs à définir.  
+Le premier est pour permettre au bouton `endCallButton` de mettre fin à l'appel.
 
 ```
 endCallButton.onclick = hangUp;
 ```
 
-Finalement, nous en ajoutons un lorsque le formulaire d'inscription est envoyé pour envoyé le nom avec le socket
+Finalement, nous en ajoutons un lorsque le formulaire d'inscription est envoyé, pour envoyer le nom avec le socket.
 
 ```
 registerForm?.addEventListener("submit", (e) => {
@@ -424,7 +424,7 @@ registerForm?.addEventListener("submit", (e) => {
 
 ## Initialisation
 
-Tout ce qu'il nous reste à faire maintenant, c'est appeller les fonction de mise en place, connecter le socket et montre le dialog avec le formulair d'inscription
+Tout ce qu'il nous reste à faire maintenant, c'est appeler les fonctions de mise en place, connecter le socket et montrer le dialog avec le formulaire d'inscription.
 
 ```
 setupPeerConnectionListeners();
@@ -433,9 +433,21 @@ socket.connect();
 registerDialog.showModal();
 ```
 
+## Démonstration
+
+Voyons maintenant ce que nous avons en photos.
+
+### Formulaire d'inscription
+
+### Liste des utilisateurs connectés
+
+### Dialog d'appel
+
+### Zone d'appel
+
 ## Lien
 
-Si vous voulez explorer la totalité du code que nous avons jusqu'a présent, voici le lien : [https://github.com/Jxddiss/WebRTC-blog](https://github.com/Jxddiss/WebRTC-blog)
+Si vous voulez explorer la totalité du code que nous avons jusqu'à présent, voici le lien : [https://github.com/Jxddiss/WebRTC-blog](https://github.com/Jxddiss/WebRTC-blog)
 
 ---
 
