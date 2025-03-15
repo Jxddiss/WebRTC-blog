@@ -453,7 +453,7 @@ Voyons maintenant ce que nous avons en photos.
 
 ![Zone d'appel](https://github.com/Jxddiss/WebRTC-blog/blob/main/images/appel-video.png?raw=true)
 
-**Ici, j'ai utilisé deux fenêtres du même navigateur, dont une en navigation privée, puisque deux applications ne peuvent pas avoir accès à ma webcam en même temps, mais il s'agit de deux utilisateurs différents et d'une connexion WebRTC entre deux pairs.**
+**Ici, j'ai utilisé deux fenêtres du même navigateur, dont une en navigation privée, puisque deux applications ne peuvent pas avoir accès à ma webcam en même temps, mais il s'agit de deux utilisateurs différents et d'une connexion WebRTC entre deux pairs distinctes pour chaques utilisateurs.**
 
 ## Conclusion
 
