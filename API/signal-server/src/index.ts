@@ -28,6 +28,10 @@ io.on("connection", (socket) => {
       .emit("call", { from: socket.id, name: connectedUsers[socket.id] });
   });
 
+  socket.on("endCall", (data) => {
+    socket.to(data.to).emit("endCall");
+  });
+
   socket.on("offer", (data) => {
     socket.to(data.to).emit("offer", { sdp: data.sdp, socketId: socket.id });
   });

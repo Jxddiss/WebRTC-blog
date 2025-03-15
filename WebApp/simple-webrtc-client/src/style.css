@@ -33,7 +33,7 @@ hr {
 
 .container-content {
   height: 100%;
-  width: 50%;
+  width: 100%;
   padding: 3em;
   border: 1px solid rgba(206, 213, 221, 0.6);
   border-radius: 12px;
@@ -285,4 +285,99 @@ dialog::backdrop {
   flex-direction: column;
   gap: 1.5rem;
   width: 100%;
+}
+
+#call-box {
+  display: none;
+}
+
+#call-box .container-content {
+  position: relative;
+}
+
+#call-box video {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  background: black;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.05);
+}
+
+#call-box #remote-video-container {
+  height: 90%;
+  width: 70%;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+#call-box #local-video-container {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  height: 35%;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+}
+
+#call-actions {
+  position: absolute;
+  bottom: 20px;
+  left: 25px;
+  display: flex;
+  gap: 1rem;
+}
+
+#call-actions button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+  width: 80px;
+  padding: 0.5em;
+  border: none;
+  border-radius: 1000000000000px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+}
+
+#call-actions button:hover {
+  scale: 1.1;
+  box-shadow: 0 6px 8px -1px rgba(37, 99, 235, 0.3);
+}
+
+#call-actions button:active {
+  scale: 1;
+}
+
+#call-actions button:not(#end-call) {
+  background-color: #2563eb;
+}
+
+#call-actions button:not(#end-call):hover {
+  background-color: #1d4ed8;
+}
+
+#call-actions button svg {
+  height: 30px;
+  width: 30px;
+}
+
+#end-call {
+  background-color: #ef4444;
+}
+
+#end-call:hover {
+  background-color: #dc2626;
+}
+
+#current-call-name {
+  font-size: 1.5em;
+  margin-bottom: 0.5em;
+  color: #1e293b;
 }
