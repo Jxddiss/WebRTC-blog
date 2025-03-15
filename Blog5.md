@@ -439,11 +439,25 @@ Voyons maintenant ce que nous avons en photos.
 
 ### Formulaire d'inscription
 
+![formulaire d'inscription](https://github.com/Jxddiss/WebRTC-blog/blob/main/images/insc.png?raw=true)
+
 ### Liste des utilisateurs connectés
+
+![Liste des utilisateurs connectés](https://github.com/Jxddiss/WebRTC-blog/blob/main/images/users.png?raw=true)
 
 ### Dialog d'appel
 
+![Dialog d'appel](https://github.com/Jxddiss/WebRTC-blog/blob/main/images/diag-appel.png?raw=true)
+
 ### Zone d'appel
+
+![Zone d'appel](https://github.com/Jxddiss/WebRTC-blog/blob/main/images/appel-video.png?raw=true)
+
+**Ici, j'ai utilisé deux fenêtres du même navigateur, dont une en navigation privée, puisque deux applications ne peuvent pas avoir accès à ma webcam en même temps, mais il s'agit de deux utilisateurs différents et d'une connexion WebRTC entre deux pairs.**
+
+## Conclusion
+
+Dans cet énorme article, nous avons vu comment créer une application cliente utilisant WebRTC pour faire des appels un-à-un. Pour la suite, je ne sais pas encore ce que nous verrons, mais nous risquons de construire sur cette application afin d'explorer un peu plus ce que nous pouvons faire, comme par exemple intégrer le partage d'écran. Alors sur ce, à la prochaine !
 
 ## Lien
 
