@@ -20,6 +20,7 @@ Vous pouvez le cloner dans votre espace et accéder à la branche avec les comma
 
 ```
 git clone https://github.com/Jxddiss/WebRTC-blog.git
+cd webrtc-blog
 git switch client
 ```
 
