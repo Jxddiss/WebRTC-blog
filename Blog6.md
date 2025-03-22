@@ -1,6 +1,4 @@
-Nous voilà arrivés au dernier article sur WebRTC, j'espère ne pas vous avoir perdus avec l'énorme article de la semaine dernière.
-Après avoir vu les concepts clés de cette technologie et implémenté notre propre système d'appel vidéo un-à-un, nous allons ajouter la possibilité
-de partager notre écran. Ensuite, je ferai un très bref retour sur ce que nous avons vu et je conclurai cette série de blogs.
+Nous voilà arrivés au dernier article sur WebRTC, j'espère ne pas vous avoir perdus avec l'énorme article de la semaine dernière. Après avoir vu les concepts clés de cette technologie et implémenté notre propre système d'appel vidéo un-à-un, nous allons ajouter la possibilité de partager notre écran. Ensuite, je ferai un très bref retour sur ce que nous avons vu et je conclurai cette série de blogs.
 
 ## Contexte
 
