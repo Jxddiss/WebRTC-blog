@@ -26,11 +26,16 @@ const callDialog = document.getElementById("call-dialog") as HTMLDialogElement;
 const callDialogName = document.getElementById("caller-name");
 const callDialogAccept = document.getElementById("accept-call");
 const callDialogReject = document.getElementById("reject-call");
+const toggleScreenSharingButton = document.getElementById(
+  "share-screen"
+) as HTMLButtonElement;
 
 // ---------------------------- États ----------------------------
 let peerConnection = new RTCPeerConnection();
 let currentCallId: string | null = null;
 let localStream: MediaStream | null = null;
+let localDisplayStream: MediaStream | null = null;
+let isSharingScreen = false;
 const socket = io("http://localhost:3000");
 
 // ---------------------------- Fonctions WebRTC ----------------------------
@@ -53,6 +58,34 @@ function handleStream(stream: MediaStream) {
   callBox.style.display = "block";
   localVideo.srcObject = stream;
   stream.getTracks().forEach((track) => peerConnection.addTrack(track, stream));
+}
+
+async function toggleScreenSharing() {
+  if (isSharingScreen) {
+    if (localStream) {
+      switchStream(localStream);
+    }
+  } else {
+    const stream = await navigator.mediaDevices.getDisplayMedia({
+      video: true,
+      audio: true,
+    });
+    switchStream(stream);
+  }
+  isSharingScreen = !isSharingScreen;
+}
+
+function switchStream(stream: MediaStream) {
+  peerConnection.getSenders().forEach((sender) => {
+    if (sender.track?.kind === "video") {
+      sender.replaceTrack(stream.getVideoTracks()[0]);
+    }
+  });
+
+  if (isSharingScreen) {
+    localDisplayStream?.getTracks().forEach((track) => track.stop());
+  }
+  localVideo.srcObject = stream;
 }
 
 function resetStates() {
@@ -202,6 +235,7 @@ registerForm?.addEventListener("submit", (e) => {
     registerDialog.close();
   }
 });
+toggleScreenSharingButton.onclick = toggleScreenSharing;
 
 // ---------------------------- Initialisation ----------------------------
 setupPeerConnectionListeners();
